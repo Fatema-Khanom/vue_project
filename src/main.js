@@ -1,3 +1,9 @@
+// Import Bootstrap CSS and JS
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// ...existing code...
+
 import './assets/main.css'
 
 import { createApp } from 'vue'
