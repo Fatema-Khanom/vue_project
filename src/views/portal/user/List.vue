@@ -1,8 +1,10 @@
 <template>
   <div class="container bg-white">
-    <h2 class="mb-4 text-dark" v-if="showInfo">User age: {{ userAge }}</h2>
-    <h2 class="mb-4 text-dark" v-if="showInfo">User List</h2>
-    <div class="table-responsive" v-if="showInfo">
+    <div class="header-row">
+      <h2 class="mb-4 mb-md-0 text-dark">User List</h2>
+      <button class="btn btn-primary" @click="createUser()">Create User</button>
+    </div>
+    <div class="table-responsive">
       <table class="table table-striped table-bordered table-hover">
         <thead class="table-light">
           <tr>
@@ -22,32 +24,49 @@
         </tbody>
       </table>
     </div>
-    <button class="btn btn-light border" @click="showData()">Show data</button>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 
-const userAge = ref(null);
-const showInfo = ref(false);
+//Store
+const userStore = useUserStore()
+const router = useRouter()
 
-const users = reactive([]);
+//Reactive variables
+const userAge = ref(25)
+const showInfo = ref(false)
+
+const users = userStore.userList
 //
 
-const showData = () => {
-  userAge.value = 25
-  const res = [
-    { id: 1, name: 'John Doe', email: 'john.doe@example.com', phone: '(123) 456-7890' },
-    { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', phone: '(234) 567-8901' },
-    { id: 3, name: 'Robert Johnson', email: 'robert.j@example.com', phone: '(345) 678-9012' },
-    { id: 4, name: 'Emily Wilson', email: 'emily.w@example.com', phone: '(456) 789-0123' },
-    { id: 5, name: 'Michael Brown', email: 'michael.b@example.com', phone: '(567) 890-1234' },
-  ];
-
-  users.push(...res);
-  showInfo.value = true;
+const createUser = () => {
+  router.push({ name: 'UserCreate' })
+  console.log('Create User button clicked')
 }
+
+const addNewUserData = () => {
+  const newUserObj = {
+    id: users.length + 1,
+    name: userStore.userNew.name,
+    email: userStore.userNew.email,
+    phone: userStore.userNew.phone
+  }
+  users.push(newUserObj); // Fixed: removed spread operator
+  console.log('New user added:', newUserObj);
+}
+
+onMounted(() => {
+  console.log('User List component mounted')
+  // Check if there is new user data to add
+  if (userStore.hasNewUser) {
+    addNewUserData()
+    userStore.hasNewUser = false // Reset the flag
+  }
+})
 </script>
 
 <style scoped>
@@ -55,6 +74,13 @@ const showData = () => {
   padding: 20px;
   background-color: #ffffff;
   color: #212529;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 /* Light theme styles */
